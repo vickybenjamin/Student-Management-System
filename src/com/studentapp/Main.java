@@ -1,28 +1,142 @@
 package com.studentapp;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Scanner;
+
 public class Main {
+	private static List<Student> studentList;
+	private static Scanner scanner;
 
 	public static void main(String[] args) {
 		System.out.println("******* Student Management System *******");
-		System.out.println("******* Welcome *******");
-		
-		Student s1= new Student("Neha Raj", 22, "S-21");
-		s1.enrollCourse("Java");
-		s1.enrollCourse("DSA");
-		s1.enrollCourse("DevOps");
-		s1.enrollCourse("Python");
-		System.out.println(s1);
-		s1.printStudentInfo();
-		
-		Student s2= new Student("Uday", 24, "S-11");
-		s2.enrollCourse("Java");
-		System.out.println(s2);
-		s2.printStudentInfo();
-		
-		Student s3= new Student("Ritu", 25, "S-15");
-		s3.enrollCourse("DevOps");
-		System.out.println(s3);
-		s3.printStudentInfo();
+
+		studentList = new ArrayList<Student>();
+		scanner = new Scanner(System.in);
+
+		while (true) {
+			System.out.println("******* Welcome *******");
+			System.out.println("Select an option");
+			System.out.println("1. Register a Student");
+			System.out.println("2. Find Student with studentId");
+			System.out.println("3. List all student information");
+			System.out.println("4. List Student information in sorted order");
+			System.out.println("5. Exit");
+			int option = scanner.nextInt();
+
+			switch (option) {
+			case 1:
+				enrollStudent(scanner);
+				break;
+
+			case 2:
+				findStudentById(scanner);
+				break;
+			case 3:
+				printAllStudentData();
+				break;
+
+			case 4:
+				sortByName();
+				break;
+
+			case 5:
+				exit();
+				break;
+
+			default:
+				System.out.println("Invalid option selected!.. Enter between 1 and 5");
+				break;
+			}
+		}
+
+	}
+
+	private static void exit() {
+		System.out.println("GoodBye!!!");
+		System.exit(0);
+	}
+
+	private static void printAllStudentData() {
+		if (studentList.size() > 0) {
+			System.out.println("=============== Print all Student Information ===============");
+
+			for (Student student : studentList) {
+				student.printStudentInfo();
+			}
+			System.out.println("==============================");
+		} else {
+			System.err.println("Student List is Empty!! No Student Record found");
+		}
+	}
+
+	private static void findStudentById(Scanner scanner) {
+		Student studentFound = null;
+		System.out.println("Enter the Student Id");
+		String studentId= scanner.next();
+		try {
+			studentFound = studentList.stream().filter(student -> student.getStudentId().equalsIgnoreCase(studentId)).findFirst()
+					.orElseThrow(() -> new RuntimeException("No Data Found"));
+
+		} catch (RuntimeException e) {
+			System.err.println("Student with ID " + studentId + " not found");
+		}
+		studentFound.printStudentInfo();
+	}
+
+	private static void enrollStudent(Scanner scanner) {
+		System.out.println("Enter Student Name..");
+		String studentName = scanner.next();
+
+		System.out.println("Enter Student age..");
+		int studentage = scanner.nextInt();
+
+		System.out.println("Enter Student ID..");
+		String studentId = scanner.next();
+
+		Student newStudent = new Student(studentName, studentage, studentId);
+		studentList.add(newStudent);
+
+		while (true) {
+			System.out.println("Enter the course to be enrolled!!...Type Done to exit");
+			String course = scanner.next();
+			if (course.equalsIgnoreCase("done")) {
+				break;
+			}
+
+			newStudent.enrollCourse(course);
+		}
+		newStudent.printStudentInfo();
+
+	}
+
+	public static Student findStudentById(String studentId) {
+		Student result = null;
+		try {
+			result = studentList.stream().filter(x -> x.getStudentId().equalsIgnoreCase(studentId)).findFirst()
+					.orElseThrow(() -> new RuntimeException("No Data Found"));
+
+		} catch (RuntimeException e) {
+			System.err.println("Student with ID " + studentId + " not found");
+		}
+		return result;
+	}
+
+	private static void sortByName() {
+		Comparator<Student> studentComparator = (o1, o2) -> o1.getName().compareTo(o2.getName());
+
+		/*
+		 * new Comparator<Student>() {
+		 * 
+		 * @Override public int compare(Student o1, Student o2) { // TODO Auto-generated
+		 * method stub return o1.getName().compareTo(o2.getName()); }
+		 * 
+		 * };
+		 */
+		Collections.sort(studentList, studentComparator);
+		printAllStudentData();
 	}
 
 }
